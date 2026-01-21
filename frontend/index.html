@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop | Home</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header div {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        header nav {
+            display: flex;
+            gap: 20px;
+        }
+        header nav a, header nav button {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        header nav a:hover, header nav button:hover {
+            background-color: #667eea;
+            color: white;
+        }
+        header nav .admin-btn {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+        header nav .admin-btn:hover {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
+        header nav .logout-btn {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        header nav .logout-btn:hover {
+            background-color: #218838;
+            border-color: #218838;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+        .card h3 {
+            padding: 15px 15px 5px;
+            font-size: 18px;
+            color: #333;
+        }
+        .card p {
+            padding: 5px 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        .card p:nth-of-type(2) {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            padding: 10px 15px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #28a745;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge.out {
+            background: #dc3545;
+        }
+        .card > div {
+            padding: 15px;
+        }
+        .btn {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn:hover:not(:disabled) {
+            background: #5568d3;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #5a6268;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .no-products {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>🛍️ <strong>Shop</strong></div>
+        <nav>
+            <a href="./index.html">Home</a>
+            <a href="./cart.html">🛒 Cart</a>
+            <button class="admin-btn" onclick="redirectToAdmin()">🔐 Admin</button>
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </nav>
+    </header>
+    <div class="container">
+        <h2>📦 Products</h2>
+        <div id="products" class="grid"></div>
+    </div>
+
+    <script>
+        const API_BASE = `${window.location.origin}/api`;
+
+        function checkAuthentication() {
+            const user_token = localStorage.getItem('user_token');
+            if (!user_token) {
+                window.location.href = './user-login.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function loadProducts() {
+            if (!checkAuthentication()) return;
+            
+            const container = document.getElementById("products");
+            try {
+                const res = await fetch(`${API_BASE}/products/`, { credentials: "include" });
+                const items = await res.json();
+                
+                if (!Array.isArray(items) || items.length === 0) {
+                    container.innerHTML = '<div class="no-products" style="grid-column: 1/-1;">📦 No products available yet. Check back soon!</div>';
+                    return;
+                }
+
+                container.innerHTML = "";
+                items.forEach((p) => {
+                    const card = document.createElement("div");
+                    card.className = "card";
+                    
+                    const imageUrl = p.uploaded_image_url 
+                        ? `${window.location.origin}${p.uploaded_image_url}` 
+                        : (p.image_url || "https://via.placeholder.com/300x200?text=No+Image");
+                    
+                    const inStock = p.stock > 0;
+                    const badgeClass = inStock ? "" : "out";
+                    const stockText = inStock ? `✓ In Stock (${p.stock})` : "❌ Out of Stock";
+                    
+                    card.innerHTML = `
+                        <img src="${imageUrl}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'" />
+                        <h3>${p.name}</h3>
+                        <p>${p.description}</p>
+                        <p>$${parseFloat(p.price).toFixed(2)}</p>
+                        <p><span class="badge ${badgeClass}">${stockText}</span></p>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn" onclick="addToCart(${p.id}, '${p.name}')" ${inStock ? "" : "disabled"}>
+                                ${inStock ? "🛒 Add to Cart" : "Out of Stock"}
+                            </button>
+                            <a class="btn secondary" href="./product.html?id=${p.id}">📋 Details</a>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                container.innerHTML = `<div style="grid-column: 1/-1; color: #dc3545; text-align: center; padding: 40px;">❌ Error loading products: ${error.message}</div>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function addToCart(productId, productName) {
+            try {
+                await fetch(`${API_BASE}/cart/`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ product_id: productId, quantity: 1 }),
+                });
+                alert(`✓ "${productName}" added to cart!`);
+            } catch (error) {
+                alert("❌ Error adding to cart: " + error.message);
+            }
+        }
+
+        function redirectToAdmin() {
+            window.location.href = './admin-ui.html';
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user_token');
+                window.location.href = './user-login.html';
+            }
+        }
+
+        window.addEventListener('load', loadProducts);
+    </script>
+</body>
+</html>
+

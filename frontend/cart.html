@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div><strong>Mini Shop</strong> – Cart</div>
+      <nav>
+        <a href="./index.html">Home</a>
+        <a href="./checkout.html">Checkout</a>
+      </nav>
+    </header>
+    <div class="container">
+      <h2>Cart</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="cart-body"></tbody>
+      </table>
+      <h3 id="total"></h3>
+      <a class="btn" href="./checkout.html">Proceed to Checkout</a>
+    </div>
+
+    <script>
+      const API_BASE = `${window.location.origin}/api`;
+
+      async function loadCart() {
+        const res = await fetch(`${API_BASE}/cart/`, { credentials: "include" });
+        const data = await res.json();
+        const body = document.getElementById("cart-body");
+        body.innerHTML = "";
+        data.items.forEach((item) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.name}</td>
+            <td>
+              <input type="number" min="1" value="${item.quantity}" style="width:60px" 
+                onchange="updateQty(${item.product_id}, this.value)">
+            </td>
+            <td>$${item.price.toFixed(2)}</td>
+            <td>$${item.subtotal.toFixed(2)}</td>
+            <td><button class="btn danger" onclick="removeItem(${item.product_id})">Remove</button></td>
+          `;
+          body.appendChild(row);
+        });
+        document.getElementById("total").innerText = `Total: $${data.total.toFixed(2)}`;
+      }
+
+      async function updateQty(id, qty) {
+        await fetch(`${API_BASE}/cart/`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product_id: id, quantity: Number(qty) }),
+        });
+        loadCart();
+      }
+
+      async function removeItem(id) {
+        await fetch(`${API_BASE}/cart/`, {
+          method: "DELETE",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product_id: id }),
+        });
+        loadCart();
+      }
+
+      loadCart();
+    </script>
+  </body>
+</html>
+

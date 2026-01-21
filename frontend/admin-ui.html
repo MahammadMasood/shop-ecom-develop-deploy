@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+            border-bottom: 2px solid #5cb85c;
+            padding-bottom: 10px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input[type="text"], input[type="password"], input[type="email"], input[type="number"], textarea, input[type="file"] {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+            margin-top: 5px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        button {
+            padding: 10px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .hidden {
+            display: none;
+        }
+        .success {
+            color: #155724;
+            margin: 10px 0;
+            padding: 12px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+        }
+        .error {
+            color: #721c24;
+            margin: 10px 0;
+            padding: 12px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+        .nav-btn {
+            background-color: #007bff;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .nav-btn:hover {
+            background-color: #0056b3;
+        }
+        .logout-btn {
+            background-color: #dc3545;
+            margin-bottom: 20px;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="nav-btn" onclick="window.location.href='index.html'">← Back to Home</button>
+
+        <div id="login-section">
+            <h1>Admin Login</h1>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <input type="text" id="login-username" placeholder="Admin Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit">Login</button>
+                <div id="login-message"></div>
+            </form>
+        </div>
+
+        <div id="dashboard-section" class="hidden">
+            <h1>Admin Dashboard</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+
+            <h2>Add New Product with Image</h2>
+            <form id="add-product-form">
+                <div class="form-group">
+                    <input type="text" id="product-name" placeholder="Product Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="product-price" placeholder="Price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <textarea id="product-description" placeholder="Product Description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="product-image">📁 Upload Product Image from Desktop:</label>
+                    <input type="file" id="product-image" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="product-stock" placeholder="Stock Quantity" required>
+                </div>
+                <button type="submit">✓ Add Product with Image</button>
+                <div id="product-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_TOKEN = localStorage.getItem('admin_token');
+        const API_BASE = 'http://localhost:8000/api';
+
+        function showLoginSection() {
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+        }
+
+        if (ADMIN_TOKEN) {
+            showDashboard();
+        } else {
+            showLoginSection();
+        }
+
+        document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const messageEl = document.getElementById('login-message');
+
+            try {
+                const response = await fetch(`${API_BASE}/admin/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('admin_token', 'admin_' + data.admin_id);
+                    messageEl.innerHTML = '<div class="success">✓ Login successful! Redirecting to dashboard...</div>';
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    messageEl.innerHTML = '<div class="error">✗ ' + (data.detail || 'Login failed') + '</div>';
+                }
+            } catch (error) {
+                messageEl.innerHTML = '<div class="error">✗ Error: ' + error.message + '</div>';
+            }
+        });
+
+        document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('product-name').value;
+            const price = document.getElementById('product-price').value;
+            const description = document.getElementById('product-description').value;
+            const image = document.getElementById('product-image').files[0];
+            const stock = document.getElementById('product-stock').value;
+            const messageEl = document.getElementById('product-message');
+
+            if (!image) {
+                messageEl.innerHTML = '<div class="error">✗ Please select an image from your desktop</div>';
+                return;
+            }
+
+            try {
+                messageEl.innerHTML = '<div class="success">⏳ Uploading product with image...</div>';
+
+                // Create product first
+                const productResponse = await fetch(`${API_BASE}/products/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Token': 'changemeadmin'
+                    },
+                    body: JSON.stringify({ name, price, description, stock })
+                });
+
+                const product = await productResponse.json();
+                if (!product.id) {
+                    messageEl.innerHTML = '<div class="error">✗ Failed to create product</div>';
+                    return;
+                }
+
+                // Upload image
+                const formData = new FormData();
+                formData.append('image', image);
+
+                const imageResponse = await fetch(`${API_BASE}/products/${product.id}/upload-image/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Admin-Token': 'changemeadmin'
+                    },
+                    body: formData
+                });
+
+                const updatedProduct = await imageResponse.json();
+                if (updatedProduct.id) {
+                    messageEl.innerHTML = '<div class="success">✓ Success! Product added with image. It will now display on the home page automatically!</div>';
+                    document.getElementById('add-product-form').reset();
+                    setTimeout(() => {
+                        messageEl.innerHTML = '';
+                    }, 4000);
+                } else {
+                    messageEl.innerHTML = '<div class="error">✗ Failed to upload image</div>';
+                }
+            } catch (error) {
+                messageEl.innerHTML = '<div class="error">✗ Error: ' + error.message + '</div>';
+                console.error('Error:', error);
+            }
+        });
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('admin_token');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

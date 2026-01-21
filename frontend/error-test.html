@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error Testing Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .test-section:last-child {
+            border-bottom: none;
+        }
+        
+        .test-section h2 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .info {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .back-button {
+            background: #95a5a6;
+            margin-top: 20px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .back-button:hover {
+            background: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Error Page Testing Dashboard</h1>
+        
+        <div class="test-section">
+            <h2>404 - Page Not Found</h2>
+            <div class="info">
+                Test the 404 error page. Click the button to simulate a page not found error.
+            </div>
+            <div class="button-group">
+                <button onclick="test404()">Test 404 Error</button>
+                <button onclick="test404Custom()">Test 404 (Custom)</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>500 - Internal Server Error</h2>
+            <div class="info">
+                Test the 500 error page. Click the button to simulate a server error.
+            </div>
+            <div class="button-group">
+                <button onclick="test500()">Test 500 Error</button>
+                <button onclick="test500Custom()">Test 500 (Custom)</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>403 - Forbidden</h2>
+            <div class="info">
+                Test the 403 error page. Click the button to simulate a forbidden access error.
+            </div>
+            <div class="button-group">
+                <button onclick="test403()">Test 403 Error</button>
+                <button onclick="test403Custom()">Test 403 (Custom)</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>401 - Unauthorized</h2>
+            <div class="info">
+                Test the 401 error page. Click the button to simulate an unauthorized access error.
+            </div>
+            <div class="button-group">
+                <button onclick="test401()">Test 401 Error</button>
+                <button onclick="test401Custom()">Test 401 (Custom)</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>503 - Service Unavailable</h2>
+            <div class="info">
+                Test the error page with custom error code (503). Click the button to test.
+            </div>
+            <div class="button-group">
+                <button onclick="test503()">Test 503 Error</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Custom Error Test</h2>
+            <div class="info">
+                Create a custom error with your own parameters. Modify the function and click the button.
+            </div>
+            <div class="button-group">
+                <button onclick="testCustom()">Test Custom Error</button>
+            </div>
+        </div>
+        
+        <button class="back-button" onclick="goBack()">← Back</button>
+    </div>
+
+    <script>
+        function redirectToError(code, title, message, details = '') {
+            const params = new URLSearchParams({
+                code: code,
+                title: title,
+                message: message
+            });
+            if (details) {
+                params.append('details', details);
+            }
+            window.location.href = `/error.html?${params.toString()}`;
+        }
+
+        // 404 Tests
+        function test404() {
+            redirectToError('404', 'Page Not Found', 'The page you are looking for does not exist.');
+        }
+
+        function test404Custom() {
+            redirectToError('404', 'Product Not Found', 'The product you are looking for might have been removed or sold out.', 'Product ID: 999 not found in database');
+        }
+
+        // 500 Tests
+        function test500() {
+            redirectToError('500', 'Internal Server Error', 'An unexpected error occurred on the server. Please try again later.');
+        }
+
+        function test500Custom() {
+            redirectToError('500', 'Database Connection Error', 'Unable to connect to the database. Our team is investigating the issue.', 'Database connection timeout after 30 seconds');
+        }
+
+        // 403 Tests
+        function test403() {
+            redirectToError('403', 'Access Forbidden', 'You do not have permission to access this resource.');
+        }
+
+        function test403Custom() {
+            redirectToError('403', 'Admin Access Only', 'This page is only accessible to administrators. Contact support if you believe this is an error.', 'User role: viewer, Required role: admin');
+        }
+
+        // 401 Tests
+        function test401() {
+            redirectToError('401', 'Unauthorized', 'Authentication is required to access this resource. Please log in.');
+        }
+
+        function test401Custom() {
+            redirectToError('401', 'Session Expired', 'Your session has expired. Please log in again to continue.', 'Session timeout after 30 minutes of inactivity');
+        }
+
+        // 503 Tests
+        function test503() {
+            redirectToError('503', 'Service Unavailable', 'The server is temporarily unavailable due to maintenance. We should be back online shortly.');
+        }
+
+        // Custom Test
+        function testCustom() {
+            redirectToError('502', 'Bad Gateway', 'The gateway server received an invalid response from the upstream server.', 'Upstream server: api.example.com returned 502');
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
