@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Details</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div><strong>Mini Shop</strong> – Product</div>
+      <nav>
+        <a href="./index.html">Home</a>
+        <a href="./cart.html">Cart</a>
+      </nav>
+    </header>
+    <div class="container">
+      <div id="product" class="card"></div>
+    </div>
+
+    <script>
+      const API_BASE = `${window.location.origin}/api`;
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get("id");
+
+      async function loadProduct() {
+        if (!productId) return;
+        const res = await fetch(`${API_BASE}/products/${productId}/`, { credentials: "include" });
+        const p = await res.json();
+        const box = document.getElementById("product");
+        box.innerHTML = `
+          <img src="${p.image_url || "https://via.placeholder.com/400x200"}" alt="${p.name}" style="height:200px;object-fit:cover;">
+          <h2>${p.name}</h2>
+          <p><strong>Price:</strong> $${p.price.toFixed(2)}</p>
+          <p>${p.description || "No description"}</p>
+          <p><span class="badge">${p.stock > 0 ? "In stock" : "Out of stock"}</span></p>
+          <button class="btn" onclick="addToCart(${p.id})">Add to Cart</button>
+        `;
+      }
+
+      async function addToCart(id) {
+        await fetch(`${API_BASE}/cart/`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product_id: id, quantity: 1 }),
+        });
+        alert("Added to cart");
+      }
+
+      loadProduct();
+    </script>
+  </body>
+</html>
+

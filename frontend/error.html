@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error | Shop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .error-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        h1 {
+            color: #e74c3c;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .error-code {
+            color: #95a5a6;
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .error-message {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .error-description {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #bdc3c7;
+            transform: translateY(-2px);
+        }
+        
+        .error-details {
+            background: #f8f9fa;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 30px;
+            text-align: left;
+            display: none;
+        }
+        
+        .error-details h3 {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .error-details p {
+            color: #555;
+            font-size: 13px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .footer-text {
+            color: #95a5a6;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        
+        .error-timestamp {
+            color: #bdc3c7;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        
+        <div class="error-code" id="errorCode">Error</div>
+        <h1 id="errorTitle">Something Went Wrong</h1>
+        
+        <p class="error-message" id="errorMessage">
+            We're sorry, but something unexpected happened. Please try again later.
+        </p>
+        
+        <p class="error-description" id="errorDescription">
+            If the problem persists, please contact our support team or try refreshing the page.
+        </p>
+        
+        <div class="error-details" id="errorDetails">
+            <h3>Error Details:</h3>
+            <p id="errorDetailText"></p>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="goHome()">🏠 Go to Home</button>
+            <button class="btn btn-secondary" onclick="goBack()">← Go Back</button>
+        </div>
+        
+        <div class="error-timestamp">
+            Error Time: <span id="timestamp"></span>
+        </div>
+        
+        <div class="footer-text">
+            If this error persists, please save the error code and contact support.
+        </div>
+    </div>
+
+    <script>
+        // Get error details from URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Set timestamp
+        function setTimestamp() {
+            const now = new Date();
+            const timestamp = now.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('timestamp').textContent = timestamp;
+        }
+
+        // Update error information
+        function updateErrorInfo() {
+            const errorCode = getUrlParameter('code') || '500';
+            const errorTitle = getUrlParameter('title') || 'Something Went Wrong';
+            const errorMessage = getUrlParameter('message') || 'We\'re sorry, but something unexpected happened. Please try again later.';
+            const errorDetails = getUrlParameter('details') || '';
+
+            document.getElementById('errorCode').textContent = errorCode;
+            document.getElementById('errorTitle').textContent = errorTitle;
+            document.getElementById('errorMessage').textContent = errorMessage;
+
+            if (errorDetails) {
+                document.getElementById('errorDetailText').textContent = errorDetails;
+                document.getElementById('errorDetails').style.display = 'block';
+            }
+
+            // Update icon based on error code
+            const errorIconElement = document.querySelector('.error-icon');
+            if (errorCode === '404') {
+                errorIconElement.textContent = '🔍';
+                document.getElementById('errorDescription').textContent = 'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.';
+            } else if (errorCode === '403') {
+                errorIconElement.textContent = '🔒';
+                document.getElementById('errorDescription').textContent = 'You do not have permission to access this resource.';
+            } else if (errorCode === '503') {
+                errorIconElement.textContent = '🔧';
+                document.getElementById('errorDescription').textContent = 'The server is temporarily unavailable. Please try again later.';
+            } else if (errorCode === '401') {
+                errorIconElement.textContent = '🔐';
+                document.getElementById('errorDescription').textContent = 'Authentication required. Please log in to access this resource.';
+            }
+        }
+
+        // Navigation functions
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        function goBack() {
+            // Try to go back, if no history, go home
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                goHome();
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            setTimestamp();
+            updateErrorInfo();
+        });
+    </script>
+</body>
+</html>

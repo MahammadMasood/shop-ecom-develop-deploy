@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div><strong>Mini Shop</strong> – Checkout</div>
+      <nav>
+        <a href="./index.html">Home</a>
+        <a href="./cart.html">Cart</a>
+      </nav>
+    </header>
+    <div class="container">
+      <h2>Shipping & Payment</h2>
+      <div class="card">
+        <div class="form-group">
+          <label>Name</label>
+          <input id="name" placeholder="Jane Doe" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input id="email" placeholder="jane@example.com" />
+        </div>
+        <p>Payment Method: <strong>Cash on Delivery</strong></p>
+        <button class="btn" onclick="placeOrder()">Place Order</button>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = `${window.location.origin}/api`;
+
+      async function placeOrder() {
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const res = await fetch(`${API_BASE}/checkout/`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.detail || "Checkout failed");
+          return;
+        }
+        const url = `./order_confirmation.html?order_id=${data.order_id}&delivery=${data.estimated_delivery || ""}`;
+        window.location.href = url;
+      }
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div><strong>Mini Shop</strong> – Order Confirmed</div>
+      <nav>
+        <a href="./index.html">Home</a>
+      </nav>
+    </header>
+    <div class="container">
+      <div class="card">
+        <h2>Thank you!</h2>
+        <p>Your order has been placed.</p>
+        <p><strong>Order ID:</strong> <span id="order-id"></span></p>
+        <p><strong>Status:</strong> Order Placed</p>
+        <p><strong>Estimated Delivery:</strong> <span id="delivery"></span></p>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      document.getElementById("order-id").innerText = params.get("order_id") || "N/A";
+      document.getElementById("delivery").innerText = params.get("delivery") || "TBD";
+    </script>
+  </body>
+</html>
+
