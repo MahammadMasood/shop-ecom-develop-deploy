@@ -39,7 +39,9 @@ allowed_hosts_env = os.environ.get("ALLOWED_HOSTS")
 if allowed_hosts_env:
     ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(",") if host.strip()]
 else:
-    ALLOWED_HOSTS = ["*"]
+    ALLOWED_HOSTS = [
+        "shop-alb-658333407.eu-north-1.elb.amazonaws.com"
+        ]
 
 
 # Application definition
